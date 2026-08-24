@@ -1,0 +1,112 @@
+generator client {
+  provider      = "prisma-client"
+  output        = "../generated/prisma"
+  moduleFormat  = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  OWNER
+  EDITOR
+  VIEWER
+}
+
+enum CommentType {
+  BUG
+  SUGGESTION
+  EXPLANATION
+}
+
+model User {
+  id           String           @id @default(cuid())
+  email        String           @unique
+  passwordHash String
+  name         String
+  createdAt    DateTime         @default(now())
+
+  ownedRooms   Room[]
+  memberships  RoomMembership[]
+  comments     Comment[]
+  chatMessages ChatMessage[]
+  snapshots    CodeSnapshot[]
+}
+
+model Room {
+  id             String           @id @default(cuid())
+  name           String
+  ownerId        String
+  isBeginnerMode Boolean          @default(false)
+  createdAt      DateTime         @default(now())
+
+  owner       User             @relation(fields: [ownerId], references: [id])
+  memberships RoomMembership[]
+  comments    Comment[]
+  chatMessages ChatMessage[]
+  snapshots   CodeSnapshot[]
+
+  @@index([ownerId])
+}
+
+model RoomMembership {
+  roomId String
+  userId String
+  role   Role
+
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([roomId, userId])
+  @@index([roomId])
+  @@index([userId])
+}
+
+model Comment {
+  id         String      @id @default(cuid())
+  roomId     String
+  authorId   String
+  lineNumber Int
+  type       CommentType
+  content    String
+  resolved   Boolean     @default(false)
+  resolvedBy String?
+  resolvedAt DateTime?
+
+  room   Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id])
+
+  @@index([roomId])
+  @@index([authorId])
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  roomId    String
+  authorId  String
+  content   String
+  createdAt DateTime @default(now())
+
+  room   Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id])
+
+  @@index([roomId])
+  @@index([authorId])
+}
+
+model CodeSnapshot {
+  id         String   @id @default(cuid())
+  roomId     String
+  createdBy  String
+  content    String
+  message    String?
+  isAutoSave Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  room    Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  creator User @relation(fields: [createdBy], references: [id])
+
+  @@index([roomId])
+  @@index([createdBy])
+}
