@@ -711,7 +711,10 @@ CodeSync includes multiple security mechanisms:
 # Team
 
 Built as a team project as part of **Back-end Engineering coursework at Chitkara University**.
+### Authors
 
+- **BhumikaRanaDev**
+- **garishaaaa**
 ---
 
 # License
