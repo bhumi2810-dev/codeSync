@@ -11,3 +11,8 @@ router.post("/login", login);
 router.get("/me", authenticate, me);
 
 export default router;
+
+
+// req aaegi then 
+// Route identify - kis controller ko req bhejni hai
+// response to fontend

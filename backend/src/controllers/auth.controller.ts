@@ -8,18 +8,19 @@ import { AuthRequest } from "../middleware/auth.middleware";
 import { prisma } from "../lib/prisma";
 export async function signup(req: Request, res: Response) {
   try {
-    const parsed = signupSchema.safeParse(req.body);
+    const parsed = signupSchema.safeParse(req.body);  // frontend se name, email,password recieved
+    // safeParse check data valid or not 
 
     if (!parsed.success) {
       return res.status(400).json({
         success: false,
-        errors: parsed.error.flatten().fieldErrors,
+        errors: parsed.error.flatten().fieldErrors,  // Zod ke validation errors ko simplify english language mein write krna
       });
     }
 
     const result = await signupUser(parsed.data);
 
-    return res.status(201).json({
+    return res.status(201).json({   //success 201 created response to frontend
       success: true,
       data: result,
     });
